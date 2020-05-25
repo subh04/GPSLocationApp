@@ -26,14 +26,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private static final int REQUEST_CODE=1000; //by convention the constants are in capitals
 
     private GoogleApiClient googleApiClient;
-    private Location location;
-    private TextView txtLocation;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        txtLocation=findViewById(R.id.txtLocation);
+
         googleApiClient=new GoogleApiClient.Builder(MainActivity.this)
                 .addConnectionCallbacks(MainActivity.this)
                 .addOnConnectionFailedListener(MainActivity.this)
@@ -45,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         Log.d(TAG,"we are connected");
 
-        showTheUserLocation();
+
 
     }
 
@@ -90,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             googleApiClient.connect();
         }
     }
+    /*
 
     //custom methods
     private void showTheUserLocation(){
@@ -114,5 +114,5 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             txtLocation.setText("THIS APP REQUIRES LOCATION");
             ActivityCompat.requestPermissions(MainActivity.this,new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},1);
         }
-    }
+    }*/
 }
