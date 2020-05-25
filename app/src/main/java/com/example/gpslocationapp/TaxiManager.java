@@ -1,6 +1,7 @@
 package com.example.gpslocationapp;
 
 import android.location.Location;
+//taxiApp
 
 public class TaxiManager {
     private Location destinationLocation;
