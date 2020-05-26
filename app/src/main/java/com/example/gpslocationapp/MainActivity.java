@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+//import android.location.LocationListener;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -22,12 +23,14 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderApi;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationListener;
 
 import java.util.List;
 
 //implementation of various interfaces to get the location
-public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener, View.OnClickListener/*, LocationListener */{
 
     EditText edtAddress,edtKmph,edtMetersPerKm;
     Button getData;
@@ -64,10 +67,26 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 .addApi(LocationServices.API).build();
     }
 
+
+
+
+
     @Override
     public void onConnected(Bundle bundle) {
 
         Log.d(TAG,"we are connected");
+        //for runtime distance changing
+//        FusedLocationProviderApi fusedLocationProviderApi=LocationServices.FusedLocationApi;
+//        LocationRequest locationRequest=new LocationRequest();
+//        locationRequest.setInterval(10000);//every 10 sec the location is requested
+//        locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);//less power is consumed using this
+//        locationRequest.setSmallestDisplacement(5);//after each 5 mts the location is requested
+//        if (googleApiClient.isConnected()){
+//            fusedLocationProviderApi.requestLocationUpdates(googleApiClient,locationRequest,MainActivity.this); //MainActivity Listens to the location changes and we need to allow mainactivity to listen to the location changes and the class should implement LocationListener
+//        }else {
+//            googleApiClient.connect();
+//        }
+
 
 
 
@@ -171,6 +190,24 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
 
     }
+
+    //for run time distance and time changing
+
+//    @Override
+////    public void onLocationChanged(Location location) {
+////            onClick(null);      //user does not have to press the button for location
+////    }
+
+//    @Override
+//    protected void onPause() {      //when the app goes to background or been paused the application stops requesting for the location
+//        super.onPause();
+//        FusedLocationProviderApi fusedLocationProviderApi=LocationServices.FusedLocationApi;    //FusedLocationProviderApi is an interface and the object cannot be made using new
+//        fusedLocationProviderApi.removeLocationUpdates(googleApiClient,MainActivity.this);
+//
+//
+//    }
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
     /*
 
     //custom methods
