@@ -143,6 +143,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             }catch (Exception e){
                 isGeoCoding=false;  //if the destination address could not be geocoded
                 e.printStackTrace();
+                Toast.makeText(getApplicationContext(),"plz enter correct location",Toast.LENGTH_LONG).show();
             }
 
         }
