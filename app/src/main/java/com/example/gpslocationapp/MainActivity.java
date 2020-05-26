@@ -8,9 +8,14 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,8 +24,17 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderApi;
 import com.google.android.gms.location.LocationServices;
 
+import java.util.List;
+
 //implementation of various interfaces to get the location
-public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener {
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
+
+    EditText edtAddress,edtKmph,edtMetersPerKm;
+    Button getData;
+    TextView txtTime,txtDistanceValue;
+    private String destinationLocation="";
+    private TaxiManager taxiManager;
+
 
     public static final String TAG="TAG";
     private static final int REQUEST_CODE=1000; //by convention the constants are in capitals
@@ -32,6 +46,17 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        edtAddress=findViewById(R.id.edtAddress);
+        edtKmph=findViewById(R.id.edtkmph);
+        edtMetersPerKm=findViewById(R.id.edtMetersPerKm);
+        getData=findViewById(R.id.btnGetTheData);
+        txtTime=findViewById(R.id.txtTime);
+        txtDistanceValue=findViewById(R.id.txtDistanceValue);
+
+        getData.setOnClickListener(MainActivity.this);
+        taxiManager=new TaxiManager();
+
 
         googleApiClient=new GoogleApiClient.Builder(MainActivity.this)
                 .addConnectionCallbacks(MainActivity.this)
@@ -88,6 +113,62 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         if (googleApiClient!=null){
             googleApiClient.connect();
         }
+    }
+
+    @Override
+    public void onClick(View v) {
+        String addressValue=edtAddress.getText().toString();
+        boolean isGeoCoding=true; //geoCoding is coverting latitude and longitude value into human readable text
+        if (!addressValue.equals(destinationLocation)){ //the details returned only once not always for the same destination
+
+            destinationLocation=addressValue;
+            Geocoder geocoder=new Geocoder(MainActivity.this);
+            //as geocode may fail we must put the logic inside the try catch block
+            try {
+
+                List<Address> myAddresses=geocoder.getFromLocationName(destinationLocation,4); //our list is going to have 4 most accurate address
+                if (myAddresses!=null){
+                    double latitude=myAddresses.get(0).getLatitude();
+                    double longitude=myAddresses.get(0).getLongitude();
+                    Location locationAddress=new Location("mydestination address");
+                    locationAddress.setLatitude(latitude);
+                    locationAddress.setLongitude(longitude);
+                    taxiManager.setDestinationLocation(locationAddress);
+
+
+                }
+
+
+
+            }catch (Exception e){
+                isGeoCoding=false;  //if the destination address could not be geocoded
+                e.printStackTrace();
+            }
+
+        }
+        int permissionCheck=ContextCompat.checkSelfPermission(getApplicationContext(),Manifest.permission.ACCESS_COARSE_LOCATION);
+        if(permissionCheck==PackageManager.PERMISSION_GRANTED){
+
+            FusedLocationProviderApi fusedLocationProviderApi= LocationServices.FusedLocationApi;//mainEntrance after user provides the location
+            Location userCurrentLocation=fusedLocationProviderApi.getLastLocation(googleApiClient);
+            if(userCurrentLocation!=null && isGeoCoding==true){
+
+                txtDistanceValue.setText(taxiManager.returnKmsbetweenCurrentLocationAndDestinationLocation(userCurrentLocation,Integer.parseInt(edtMetersPerKm.getText().toString())));
+                txtTime.setText(taxiManager.returnTheTimeToGetToTheDestination(userCurrentLocation,Float.parseFloat(edtKmph.getText().toString()),Integer.parseInt(edtMetersPerKm.getText().toString())));
+
+
+
+
+
+
+            }
+
+        }else{
+            txtDistanceValue.setText("This app requires location permission");
+            ActivityCompat.requestPermissions(MainActivity.this,new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},1);
+        }
+
+
     }
     /*
 
